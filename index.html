@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/png" href="1.jpg">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Cloud Gallery</title>
+    <script>
+        (() => {
+            const t = localStorage.getItem('theme') || 'system';
+            document.documentElement.dataset.theme = t === 'system' ? (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light') : t;
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav id="nav"><b class="logo">📷 Gallery</b>
+        <a data-v="dashboard">🏠<span>Home</span></a><a data-v="gallery">🖼️<span>Photos</span></a><a data-v="albums">📁<span>Albums</span></a><a data-v="favorites">⭐<span>Favorites</span></a><a data-v="storage">☁️<span>Storage</span></a>
+        <div class="nav-theme"><select id="theme" aria-label="Theme">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="autumn">Autumn</option>
+                <option value="winter">Winter</option>
+                <option value="summer">Summer</option>
+                <option value="spring">Spring</option>
+            </select></div>
+    </nav>
+    <main id="main"></main><button class="fab btn" id="fab" title="Upload">＋</button><input id="file" type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+    <div id="lb" class="lb" hidden></div>
+    <div id="toasts"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="effects.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
