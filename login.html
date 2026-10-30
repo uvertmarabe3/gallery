@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <link rel="icon" type="image/png" href="1.jpg">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Unlock · Gallery</title>
+    <script>
+        (() => {
+            const t = localStorage.getItem('theme') || 'system';
+            document.documentElement.dataset.theme = t === 'system' ? (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light') : t;
+        })();
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="auth">
+    <form class="card authbox" id="loginForm">
+        <h1>📷 Cloud Gallery</h1>
+        <p class="muted">Enter your password</p>
+        <input id="pw" type="password" placeholder="Password" autocomplete="current-password" autofocus>
+        <button class="btn" id="in" type="submit">Unlock</button>
+        <label class="auth-theme">Theme
+            <select id="theme">
+                <option value="system">System</option>
+                <option value="light">Light</option>
+                <option value="dark">Dark</option>
+                <option value="autumn">Autumn</option>
+                <option value="winter">Winter</option>
+                <option value="summer">Summer</option>
+                <option value="spring">Spring</option>
+            </select>
+        </label>
+    </form>
+    <div id="toasts"></div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <script src="effects.js"></script>
+    <script>
+        const db = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+        const $ = s => document.querySelector(s);
+        const toast = m => {
+            const d = document.createElement('div');
+            d.className = 'toast err';
+            d.textContent = m;
+            $('#toasts').append(d);
+            setTimeout(() => d.remove(), 4000)
+        };
+        const themeSel = $('#theme');
+        const applyTheme = t => {
+            localStorage.setItem('theme', t);
+            document.documentElement.dataset.theme = t === 'system' ? (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light') : t;
+            themeSel.value = t;
+        };
+        applyTheme(localStorage.getItem('theme') || 'system');
+        matchMedia('(prefers-color-scheme:dark)').addEventListener('change', () => {
+            if ((localStorage.getItem('theme') || 'system') === 'system') applyTheme('system')
+        });
+        themeSel.addEventListener('change', () => applyTheme(themeSel.value));
+        const login = async() => {
+            const pw = $('#pw'),
+                btn = $('#in');
+            if (!pw.value) {
+                toast('Enter your password');
+                pw.focus();
+                return
+            }
+            if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(CONFIG.SUPABASE_URL) || CONFIG.SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY')) {
+                toast('config.js: SUPABASE_URL must be your Project URL (https://xxxx.supabase.co), not an API key.');
+                return
+            }
+            btn.disabled = true;
+            btn.textContent = 'Unlocking…';
+            try {
+                const {
+                    error
+                } = await db.auth.signInWithPassword({
+                    email: CONFIG.OWNER_EMAIL,
+                    password: pw.value
+                });
+                if (error) {
+                    toast(error.message === 'Invalid login credentials' ? 'Invalid login. Check OWNER_EMAIL/password and create the user in Supabase → Authentication → Users.' : error.message);
+                    btn.disabled = false;
+                    btn.textContent = 'Unlock';
+                    return
+                }
+                location.href = 'index.html'
+            } catch (e) {
+                toast('Could not reach Supabase: ' + e.message);
+                btn.disabled = false;
+                btn.textContent = 'Unlock'
+            }
+        };
+        $('#loginForm').addEventListener('submit', e => {
+            e.preventDefault();
+            login()
+        });
+        db.auth.getSession().then(({
+            data
+        }) => data.session && (location.href = 'index.html'));
+    </script>
+</body>
+
+</html>
