@@ -6,6 +6,7 @@ window.CONFIG = {
     OWNER_EMAIL: 'uvertmarabe3@gmail.com', // fixed login identity; create this user in Supabase (see README)
     QUOTA_MB: 1024, // YOUR configured quota (not Supabase's account-wide limit; free plan = 1 GB total)
     MAX_FILE_MB: 10,
+    MAX_VIDEO_MB: 40,
     PAGE_SIZE: 40
 };
 // Tolerate a pasted REST endpoint or trailing slash; the client needs the base URL.
